@@ -128,7 +128,7 @@ print_stats(const struct file_result * const result, const struct options * cons
     if (opt->lines)
         printf("lines: %zu ", result->nlines);
     if (opt->words)
-        printf("words: %zu ", result->nbytes);
+        printf("words: %zu ", result->nwords);
     if (opt->bytes)
         printf("bytes: %zu", result->nbytes);
 
