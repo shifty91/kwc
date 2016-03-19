@@ -26,7 +26,7 @@ struct options {
 static void
 print_usage_and_die(void)
 {
-    fprintf(stderr, "kwc [options] [file]\n");
+    fprintf(stderr, "kwc [options] [files]\n");
     fprintf(stderr, "options:\n");
     fprintf(stderr, "  -l: count lines\n");
     fprintf(stderr, "  -w: count words\n");
@@ -138,6 +138,47 @@ out:
 }
 
 /**
+ * Counts words/lines/bytes in the current file.
+ *
+ * @param f    file to count
+ * @param path path of file to count
+ * @param opt  options
+ */
+static void
+do_file(FILE *f, const char * const path, const struct options * const opt)
+{
+    struct file_result result;
+
+    if (!f || !path || !opt) {
+        fprintf(stderr, "NULL pointer(s) passed to '%s' function. Fix the code.\n",
+                __func__);
+        exit(EXIT_FAILURE);
+    }
+
+    memset(&result, '\0', sizeof(result));
+    result.file_name = path;
+
+    /**
+     * Shortcut: If no words, we can simply count lines and
+     *           get the file size via lstat(2);
+     */
+    if (!strcmp(path, "stdin") && !opt->words) {
+        result.nbytes = get_file_size(path);
+
+        /* just bytes -> quit */
+        if (!opt->lines) {
+            print_stats(&result, opt);
+            return;
+        }
+    }
+
+    /* count */
+    count(f, &result, opt);
+
+    print_stats(&result, opt);
+}
+
+/**
  * This function captures the logic.
  *
  * @param argc files
@@ -147,46 +188,29 @@ out:
 static void
 dispatcher(int argc, char **argv, const struct options * const opt)
 {
-    struct file_result result;
-    FILE *f;
-
     if (!argv || !opt) {
         fprintf(stderr, "NULL pointer(s) passed to '%s' function. Fix the code.\n",
                 __func__);
         exit(EXIT_FAILURE);
     }
+    /* stdin */
+    if (argc == 0) {
+        do_file(stdin, "stdin", opt);
+        return;
+    }
 
-    memset(&result, '\0', sizeof(result));
-
-    /**
-     * Shortcut: If no words, we can simply count lines and
-     *           get the file size via lstat(2);
-     */
-    if (argc > 0 && !opt->words) {
-        result.file_name = argv[0];
-        result.nbytes = get_file_size(argv[0]);
-
-        /* just bytes -> quit */
-        if (!opt->lines) {
-            print_stats(&result, opt);
-            return;
+    /* files */
+    for (int i = 0; i < argc; ++i) {
+        FILE *f = fopen(argv[i], "r");
+        if (!f) {
+            perror("fopen failed");
+            exit(EXIT_FAILURE);
         }
-    }
 
-    f = argc > 0 ? fopen(argv[0], "r") : stdin;
-    if (!f) {
-        perror("fopen()");
-        exit(EXIT_FAILURE);
-    }
+        do_file(f, argv[i], opt);
 
-    /* count */
-    result.file_name = argc > 0 ? argv[0] : "stdin";
-    count(f, &result, opt);
-
-    print_stats(&result, opt);
-
-    if (argc > 0)
         fclose(f);
+    }
 }
 
 int main(int argc, char *argv[])
