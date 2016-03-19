@@ -204,7 +204,7 @@ dispatcher(int argc, char **argv, const struct options * const opt)
         FILE *f = fopen(argv[i], "r");
         if (!f) {
             perror("fopen failed");
-            exit(EXIT_FAILURE);
+            continue;
         }
 
         do_file(f, argv[i], opt);
