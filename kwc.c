@@ -3,8 +3,11 @@
 #include <ctype.h>
 #include <unistd.h>
 #include <string.h>
+#include <locale.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <wchar.h>
+#include <wctype.h>
 
 struct file_result {
     const char *file_name;
@@ -73,7 +76,8 @@ get_file_size(const char * const file)
 static void
 count(FILE *file, struct file_result *result, const struct options * const opt)
 {
-    int prev, c, linesonly;
+    wint_t prev, c;
+    int linesonly;
 
     /* args */
     if (!file || !result || !opt) {
@@ -86,20 +90,24 @@ count(FILE *file, struct file_result *result, const struct options * const opt)
     linesonly = !opt->words && opt->lines;
 
     /* count */
-    prev = EOF;
-    while ((c = fgetc(file)) != EOF) {
-        if (c == '\n')
+    prev = WEOF;
+    while ((c = fgetwc(file)) != WEOF) {
+        if (c == L'\n')
             result->nlines++;
 
         /* if lines only -> skip words (compiler should do unswitching here) */
         if (linesonly)
             continue;
 
-        if (isspace(c) && !isspace(prev))
+        if (iswspace(c) && !iswspace(prev))
             result->nwords++;
 
         result->nbytes++;
         prev = c;
+    }
+    if (ferror(file)) {
+        perror("fgetwc() failed");
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -247,6 +255,11 @@ int main(int argc, char *argv[])
 
     argc -= optind;
     argv += optind;
+
+    if (!setlocale(LC_ALL, "")) {
+        fprintf(stderr, "setlocale() failed\n");
+        return EXIT_FAILURE;
+    }
 
     /* do it */
     dispatcher(argc, argv, &opt);
