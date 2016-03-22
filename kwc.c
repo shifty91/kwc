@@ -13,13 +13,13 @@ struct file_result {
     const char *file_name;
     size_t nlines;
     size_t nwords;
-    size_t nbytes;
+    size_t nchars;
 };
 
 struct options {
     int lines;
     int words;
-    int bytes;
+    int chars;
     int parseable;
 };
 
@@ -33,7 +33,7 @@ print_usage_and_die(void)
     fprintf(stderr, "options:\n");
     fprintf(stderr, "  -l: count lines\n");
     fprintf(stderr, "  -w: count words\n");
-    fprintf(stderr, "  -b: count bytes\n");
+    fprintf(stderr, "  -c: count character\n");
     fprintf(stderr, "  -p: parseable output for use in scripts\n");
     fprintf(stderr, "By default all options are enabled. If no file is specified, stdin is used.\n");
     fprintf(stderr, "(C) Kurt Kanzenbach <kurt@kmk-computers.de>\n");
@@ -41,33 +41,7 @@ print_usage_and_die(void)
 }
 
 /**
- * Shortcut: If just -b and a file is specified, we can simply use lstat(2).
- *
- * @param file file to check
- *
- * @return file size
- */
-static size_t
-get_file_size(const char * const file)
-{
-    struct stat stat;
-
-    if (!file) {
-        fprintf(stderr, "NULL pointer(s) passed to '%s' function. Fix the code.\n",
-                __func__);
-        exit(EXIT_FAILURE);
-    }
-
-    if (lstat(file, &stat)) {
-        perror("lstat() failed");
-        exit(EXIT_FAILURE);
-    }
-
-    return (size_t)stat.st_size;
-}
-
-/**
- * Count: Reads the file until EOF and counts lines/words/bytes.
+ * Count: Reads the file until EOF and counts lines/words/characters.
  *
  * @param file   file to use (might be stdin)
  * @param result counting results will be stored in result
@@ -77,7 +51,7 @@ static void
 count(FILE *file, struct file_result *result, const struct options * const opt)
 {
     wint_t prev, c;
-    int linesonly;
+    int no_words;
 
     /* args */
     if (!file || !result || !opt) {
@@ -87,22 +61,23 @@ count(FILE *file, struct file_result *result, const struct options * const opt)
     }
 
     /* options */
-    linesonly = !opt->words && opt->lines;
+    no_words = !opt->words;
 
     /* count */
     prev = WEOF;
     while ((c = fgetwc(file)) != WEOF) {
+        result->nchars++;
+
         if (c == L'\n')
             result->nlines++;
 
-        /* if lines only -> skip words (compiler should do unswitching here) */
-        if (linesonly)
+        /* if no words -> skip counting (compiler should do unswitching here) */
+        if (no_words)
             continue;
 
         if (iswspace(c) && !iswspace(prev))
             result->nwords++;
 
-        result->nbytes++;
         prev = c;
     }
     if (ferror(file)) {
@@ -128,7 +103,7 @@ print_stats(const struct file_result * const result, const struct options * cons
 
     if (opt->parseable) {
         printf("%s;%zu;%zu;%zu", result->file_name, result->nlines,
-               result->nwords, result->nbytes);
+               result->nwords, result->nchars);
         goto out;
     }
 
@@ -137,8 +112,8 @@ print_stats(const struct file_result * const result, const struct options * cons
         printf("lines: %zu ", result->nlines);
     if (opt->words)
         printf("words: %zu ", result->nwords);
-    if (opt->bytes)
-        printf("bytes: %zu", result->nbytes);
+    if (opt->chars)
+        printf("characters: %zu", result->nchars);
 
 out:
     printf("\n");
@@ -146,7 +121,7 @@ out:
 }
 
 /**
- * Counts words/lines/bytes in the current file.
+ * Counts words/lines/characters in the current file.
  *
  * @param f    file to count
  * @param path path of file to count
@@ -165,20 +140,6 @@ do_file(FILE *f, const char * const path, const struct options * const opt)
 
     memset(&result, '\0', sizeof(result));
     result.file_name = path;
-
-    /**
-     * Shortcut: If no words, we can simply count lines and
-     *           get the file size via lstat(2);
-     */
-    if (!strcmp(path, "stdin") && !opt->words) {
-        result.nbytes = get_file_size(path);
-
-        /* just bytes -> quit */
-        if (!opt->lines) {
-            print_stats(&result, opt);
-            return;
-        }
-    }
 
     /* count */
     count(f, &result, opt);
@@ -228,7 +189,7 @@ int main(int argc, char *argv[])
 
     /* args */
     memset(&opt, '\0', sizeof(opt));
-    while ((c = getopt(argc, argv, "lwbp")) != -1) {
+    while ((c = getopt(argc, argv, "lwcp")) != -1) {
         switch (c) {
         case 'l':
             opt.lines = 1;
@@ -236,8 +197,8 @@ int main(int argc, char *argv[])
         case 'w':
             opt.words = 1;
             break;
-        case 'b':
-            opt.bytes = 1;
+        case 'c':
+            opt.chars = 1;
             break;
         case 'p':
             opt.parseable = 1;
@@ -247,10 +208,10 @@ int main(int argc, char *argv[])
             print_usage_and_die();
         }
     }
-    if (!opt.lines && !opt.words && !opt.bytes) {
+    if (!opt.lines && !opt.words && !opt.chars) {
         opt.lines = 1;
         opt.words = 1;
-        opt.bytes = 1;
+        opt.chars = 1;
     }
 
     argc -= optind;
