@@ -93,7 +93,7 @@ count(FILE *file, struct file_result *result, const struct options * const opt)
         exit(EXIT_FAILURE);
     }
     /* last line */
-    if (!iswspace(prev))
+    if (!no_words && !iswspace(prev))
         result->nwords++;
 }
 
