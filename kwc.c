@@ -8,6 +8,14 @@
 #include <sys/stat.h>
 #include <wchar.h>
 #include <wctype.h>
+#include <getopt.h>
+
+static struct option long_options[] = {
+    { "lines",     no_argument, NULL, 'l' },
+    { "words",     no_argument, NULL, 'w' },
+    { "chars",     no_argument, NULL, 'c' },
+    { "parseable", no_argument, NULL, 'p' }
+};
 
 struct file_result {
     const char *file_name;
@@ -192,7 +200,7 @@ int main(int argc, char *argv[])
 
     /* args */
     memset(&opt, '\0', sizeof(opt));
-    while ((c = getopt(argc, argv, "lwcp")) != -1) {
+    while ((c = getopt_long(argc, argv, "lwcp", long_options, NULL)) != -1) {
         switch (c) {
         case 'l':
             opt.lines = 1;
