@@ -84,6 +84,9 @@ count(FILE *file, struct file_result *result, const struct options * const opt)
         perror("fgetwc() failed");
         exit(EXIT_FAILURE);
     }
+    /* last line */
+    if (!iswspace(prev))
+        result->nwords++;
 }
 
 /**
