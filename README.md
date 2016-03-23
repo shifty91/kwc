@@ -7,12 +7,12 @@ the UNIX `wc` utility.
 
 ## Usage ##
 
-    kwc [options] [file]
+    kwc [options] [files]
     options:
-      -l: count lines
-      -w: count words
-      -b: count bytes
-      -p: parseable output for use in scripts
+      --lines, -l:     count lines
+      --words, -w:     count words
+      --chars, -c:     count character
+      --parseable, -p: parseable output for use in scripts
     By default all options are enabled. If no file is specified, stdin is used.
     (C) Kurt Kanzenbach <kurt@kmk-computers.de>
 

@@ -14,7 +14,8 @@ static struct option long_options[] = {
     { "lines",     no_argument, NULL, 'l' },
     { "words",     no_argument, NULL, 'w' },
     { "chars",     no_argument, NULL, 'c' },
-    { "parseable", no_argument, NULL, 'p' }
+    { "parseable", no_argument, NULL, 'p' },
+    { NULL,        0,           NULL,  0  }
 };
 
 struct file_result {
@@ -39,10 +40,10 @@ print_usage_and_die(void)
 {
     fprintf(stderr, "kwc [options] [files]\n");
     fprintf(stderr, "options:\n");
-    fprintf(stderr, "  -l: count lines\n");
-    fprintf(stderr, "  -w: count words\n");
-    fprintf(stderr, "  -c: count character\n");
-    fprintf(stderr, "  -p: parseable output for use in scripts\n");
+    fprintf(stderr, "  --lines, -l:     count lines\n");
+    fprintf(stderr, "  --words, -w:     count words\n");
+    fprintf(stderr, "  --chars, -c:     count character\n");
+    fprintf(stderr, "  --parseable, -p: parseable output for use in scripts\n");
     fprintf(stderr, "By default all options are enabled. If no file is specified, stdin is used.\n");
     fprintf(stderr, "(C) Kurt Kanzenbach <kurt@kmk-computers.de>\n");
     exit(EXIT_FAILURE);
