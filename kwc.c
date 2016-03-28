@@ -32,6 +32,8 @@ struct options {
     int parseable;
 };
 
+static struct file_result global_count;
+
 /**
  * Print usage and die.
  */
@@ -96,6 +98,11 @@ count(FILE *file, struct file_result *result, const struct options * const opt)
     /* last line */
     if (!no_words && !iswspace(prev))
         result->nwords++;
+
+    /* add to global counter */
+    global_count.nlines += result->nlines;
+    global_count.nwords += result->nwords;
+    global_count.nchars += result->nchars;
 }
 
 /**
@@ -191,6 +198,12 @@ dispatcher(int argc, char **argv, const struct options * const opt)
         do_file(f, argv[i], opt);
 
         fclose(f);
+    }
+
+    /* global count */
+    if (argc > 1) {
+        global_count.file_name = "global";
+        print_stats(&global_count, opt);
     }
 }
 
