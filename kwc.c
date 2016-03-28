@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <unistd.h>
-#include <string.h>
 #include <locale.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -149,7 +148,7 @@ out:
 static void
 do_file(FILE *f, const char * const path, const struct options * const opt)
 {
-    struct file_result result;
+    struct file_result result = { 0 };
 
     if (!f || !path || !opt) {
         fprintf(stderr, "NULL pointer(s) passed to '%s' function. Fix the code.\n",
@@ -157,7 +156,6 @@ do_file(FILE *f, const char * const path, const struct options * const opt)
         exit(EXIT_FAILURE);
     }
 
-    memset(&result, '\0', sizeof(result));
     result.file_name = path;
 
     /* count */
@@ -209,11 +207,10 @@ dispatcher(int argc, char **argv, const struct options * const opt)
 
 int main(int argc, char *argv[])
 {
-    struct options opt;
+    struct options opt = { 0 };
     int c;
 
     /* args */
-    memset(&opt, '\0', sizeof(opt));
     while ((c = getopt_long(argc, argv, "lwcp", long_options, NULL)) != -1) {
         switch (c) {
         case 'l':
