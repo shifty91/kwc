@@ -13,11 +13,11 @@ all: $(PROG)
 
 $(PROG): $(OBJECTS)
 	@echo "LD		$@"
-	$(CC) $(LDFLAGS) -o $@ $^
+	@$(CC) $(LDFLAGS) -o $@ $^
 
 %.o: %.c
 	@echo "CC		$@"
-	$(CC) $(CFLAGS) -c -o $@ $<
+	@$(CC) $(CFLAGS) -c -o $@ $<
 
 %.d: %.c
 	@echo "DEP		$@"
