@@ -1,7 +1,8 @@
-RM      ?= rm
+VERSION := \"1.1\"
+RM      := rm
 CC      ?= clang
-CFLAGS  ?= -std=gnu99 -Wall -O2 -pedantic -march=native
-LDFLAGS ?=
+CFLAGS  := -std=gnu99 -Wall -O2 -pedantic -march=native -DVERSION=$(VERSION)
+LDFLAGS :=
 SOURCES := $(shell find . -name "*.c" -type f -print)
 OBJECTS := $(SOURCES:%.c=%.o)
 DEPS    := $(OBJECTS:%.o=%.d)

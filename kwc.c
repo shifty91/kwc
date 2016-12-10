@@ -14,6 +14,8 @@ static struct option long_options[] = {
     { "words",     no_argument, NULL, 'w' },
     { "chars",     no_argument, NULL, 'c' },
     { "parseable", no_argument, NULL, 'p' },
+    { "help",      no_argument, NULL, 'h' },
+    { "version",   no_argument, NULL, 'v' },
     { NULL,        0,           NULL,  0  }
 };
 
@@ -33,11 +35,21 @@ struct options {
 
 static struct file_result global_count;
 
+static void
+print_version_and_die(void)
+{
+    fprintf(stderr, "kwc version %s -- wordcount utility\n", VERSION);
+    fprintf(stderr, "Copyright (C) 2016 Kurt Kanzenbach <kurt@kmk-computers.de>\n");
+    exit(0);
+}
+
 /**
  * Print usage and die.
+ *
+ * @param ret return value for exit
  */
 static void
-print_usage_and_die(void)
+print_usage_and_die(int ret)
 {
     fprintf(stderr, "kwc [options] [files]\n");
     fprintf(stderr, "options:\n");
@@ -45,9 +57,11 @@ print_usage_and_die(void)
     fprintf(stderr, "  --words, -w:     count words\n");
     fprintf(stderr, "  --chars, -c:     count character\n");
     fprintf(stderr, "  --parseable, -p: parseable output for use in scripts\n");
+    fprintf(stderr, "  --help, -h:      print this help text\n");
+    fprintf(stderr, "  --version, -v:   print version imformation\n");
     fprintf(stderr, "By default all options are enabled. If no file is specified, stdin is used.\n");
     fprintf(stderr, "(C) Kurt Kanzenbach <kurt@kmk-computers.de>\n");
-    exit(EXIT_FAILURE);
+    exit(ret);
 }
 
 /**
@@ -211,7 +225,7 @@ int main(int argc, char *argv[])
     int c;
 
     /* args */
-    while ((c = getopt_long(argc, argv, "lwcp", long_options, NULL)) != -1) {
+    while ((c = getopt_long(argc, argv, "lwcphv", long_options, NULL)) != -1) {
         switch (c) {
         case 'l':
             opt.lines = 1;
@@ -225,9 +239,13 @@ int main(int argc, char *argv[])
         case 'p':
             opt.parseable = 1;
             break;
+        case 'h':
+            print_usage_and_die(0);
+        case 'v':
+            print_version_and_die();
         case '?':
         default:
-            print_usage_and_die();
+            print_usage_and_die(1);
         }
     }
     if (!opt.lines && !opt.words && !opt.chars) {
