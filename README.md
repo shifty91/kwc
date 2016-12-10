@@ -29,10 +29,14 @@ On UNIX systems use:
 
     $ gmake
 
-By default the Makefile uses clang as compiler, but you can override some
-variables by hand. Example for gcc:
+By default the Makefile uses clang (or system's CC) as compiler, but you can
+override some variables by hand. Example for gcc:
 
-    $ CC=gcc5 make
+    $ make CC=gcc6
+
+There is also the option to show the used compile commands:
+
+    $ make VERBOSE=1
 
 ## License ##
 
