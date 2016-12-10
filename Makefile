@@ -9,27 +9,33 @@ PROG    := kwc
 PREFIX  ?= /usr/local
 INSTALL ?= /usr/bin/install
 
+ifeq ($(VERBOSE),1)
+  Q =
+else
+  Q = @
+endif
+
 all: $(PROG)
 
 $(PROG): $(OBJECTS)
 	@echo "LD		$@"
-	@$(CC) $(LDFLAGS) -o $@ $^
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 
 %.o: %.c
 	@echo "CC		$@"
-	@$(CC) $(CFLAGS) -c -o $@ $<
+	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
 
 %.d: %.c
 	@echo "DEP		$@"
-	@$(CC) $(CFLAGS) -MM -MF $@ -MT $*.o $<
+	$(Q)$(CC) $(CFLAGS) -MM -MF $@ -MT $*.o $<
 
 clean:
 	@echo "CLEAN"
-	@$(RM) -f *.o *.d $(PROG)
+	$(Q)$(RM) -f *.o *.d $(PROG)
 
 install: $(PROG)
 	@echo "Installing		$@"
-	@$(INSTALL) -m 0755 $(PROG) $(PREFIX)/bin
+	$(Q)$(INSTALL) -m 0755 $(PROG) $(PREFIX)/bin
 
 ifneq ($(MAKECMDGOALS),clean)
 -include $(DEPS)
