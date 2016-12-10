@@ -58,8 +58,7 @@ print_usage_and_die(void)
  * @param opt    options
  */
 static void
-count(FILE * restrict file, struct file_result * restrict result,
-      const struct options * const restrict opt)
+count(FILE *file, struct file_result *result, const struct options * const opt)
 {
     wint_t prev, c;
     int no_words;
@@ -112,8 +111,7 @@ count(FILE * restrict file, struct file_result * restrict result,
  * @param opt    options
  */
 static void
-print_stats(const struct file_result * const restrict result,
-            const struct options * const restrict opt)
+print_stats(const struct file_result * const result, const struct options * const opt)
 {
     if (!result || !opt) {
         fprintf(stderr, "NULL pointer(s) passed to '%s' function. Fix the code.\n",
@@ -148,8 +146,7 @@ out:
  * @param opt  options
  */
 static void
-do_file(FILE * restrict f, const char * const restrict path,
-        const struct options * const restrict opt)
+do_file(FILE *f, const char * const path, const struct options * const opt)
 {
     struct file_result result = { 0 };
 
@@ -175,8 +172,7 @@ do_file(FILE * restrict f, const char * const restrict path,
  * @param opt  options to be used
  */
 static void
-dispatcher(int argc, char ** restrict argv,
-           const struct options * const restrict opt)
+dispatcher(int argc, char **argv, const struct options * const opt)
 {
     if (!argv || !opt) {
         fprintf(stderr, "NULL pointer(s) passed to '%s' function. Fix the code.\n",
