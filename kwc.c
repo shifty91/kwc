@@ -35,7 +35,7 @@ struct options {
 
 static struct file_result global_count;
 
-static void
+__attribute__((noreturn)) static void
 print_version_and_die(void)
 {
     fprintf(stderr, "kwc version %s -- wordcount utility\n", VERSION);
@@ -48,7 +48,7 @@ print_version_and_die(void)
  *
  * @param ret return value for exit
  */
-static void
+__attribute__((noreturn)) static void
 print_usage_and_die(int ret)
 {
     fprintf(stderr, "kwc [options] [files]\n");
