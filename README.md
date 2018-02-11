@@ -18,25 +18,11 @@ the UNIX `wc` utility.
 
 ## Build ##
 
-The build process uses a simple Makefile which uses GNU features. Thus, you have
-to use GNU Make for building it.
+The build process is based on autotools:
 
-On Linux use:
-
-    $ make
-
-On UNIX systems use:
-
-    $ gmake
-
-By default the Makefile uses clang (or system's CC) as compiler, but you can
-override some variables by hand. Example for gcc:
-
-    $ make CC=gcc6
-
-There is also the option to show the used compile commands:
-
-    $ make VERBOSE=1
+    $ ./autogen.sh
+    $ ./configure --prefix=/usr
+    $ sudo make install
 
 ## License ##
 
